@@ -1,0 +1,25 @@
+{
+  "name": "opentf-server-ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.0.4"
+  },
+  "dependencies": {
+    "@fontsource/source-sans-3": "^5.0.12",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@popperjs/core": "^2.11.8",
+    "admin-lte": "^4.0.0-rc4",
+    "beacon": "^0.4.9",
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
+    "npm": "^11.4.2",
+    "overlayscrollbars": "^2.11.0"
+  }
+}
