@@ -1,4 +1,6 @@
 import React from "react";
+import { FaThLarge } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
   return (
@@ -12,47 +14,47 @@ export default function Sidebar() {
         <nav className="mt-2">
           <ul className="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" aria-label="Main navigation" data-accordion="false" id="navigation">
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <NavLink to="/" end className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-speedometer"></i>
                 <p>Dashboard</p>
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
-                <i className="nav-icon bi bi-plus-circle"></i>
-                <p>Nouvelle instance</p>
-              </a>
+              <NavLink to="/nouvelle-instance" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
+                <span className="nav-icon" style={{ display: 'inline-flex', alignItems: 'center' }}><FaThLarge size={18} /></span>
+                <p>Catalogue de service</p>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <NavLink to="/instances" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-list-ul"></i>
                 <p>Instances managées</p>
-              </a>
+              </NavLink>
             </li>
             <li className="nav-header mt-3">Admin</li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
-                <i className="nav-icon bi bi-box-seam"></i>
-                <p>Gestion des offres</p>
-              </a>
+              <NavLink to="/offres" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
+                <i className="nav-icon bi bi-magic"></i>
+                <p>Gestion du catalogue</p>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <NavLink to="/donnees" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-database"></i>
                 <p>Gestion des données</p>
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <NavLink to="/iam" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-people"></i>
                 <p>Gestion IAM</p>
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <NavLink to="/configuration" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-gear"></i>
                 <p>Configuration</p>
-              </a>
+              </NavLink>
             </li>
           </ul>
         </nav>
