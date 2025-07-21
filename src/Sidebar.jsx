@@ -20,7 +20,7 @@ export default function Sidebar() {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/nouvelle-instance" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
+              <NavLink to="/servicecatalog" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <span className="nav-icon" style={{ display: 'inline-flex', alignItems: 'center' }}><FaThLarge size={18} /></span>
                 <p>Catalogue de service</p>
               </NavLink>

@@ -52,7 +52,7 @@ export default function EditGroupe() {
   const handleSave = (e) => {
     e.preventDefault();
     // TODO: Envoyer la mise à jour au backend
-    navigate("/iam/groupes");
+    navigate("/iam/groups");
   };
 
   return (
@@ -60,14 +60,14 @@ export default function EditGroupe() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam');}}>Gestion IAM</a></li>
-          <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam/groupes');}}>Groupes</a></li>
-          <li className="breadcrumb-item active" aria-current="page">Édition</li>
+          <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam/groups');}}>Groups</a></li>
+          <li className="breadcrumb-item active" aria-current="page">Edit</li>
         </ol>
       </nav>
       <div className="card mb-4">
         <div className="card-header fw-bold d-flex align-items-center">
           <FaUsers className="me-2" /> Édition du groupe
-          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam/groupes")} title="Retour"><span aria-hidden="true">&larr;</span> Retour</button>
+          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam/groups")} title="Back"><span aria-hidden="true">&larr;</span> Back</button>
         </div>
         <form className="card-body" onSubmit={handleSave}>
           <div className="mb-3">

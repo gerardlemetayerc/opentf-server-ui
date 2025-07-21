@@ -21,13 +21,13 @@ export default function GestionGroupes() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam');}}>Gestion IAM</a></li>
-          <li className="breadcrumb-item active" aria-current="page">Groupes</li>
+          <li className="breadcrumb-item active" aria-current="page">Groups</li>
         </ol>
       </nav>
       <div className="card mb-4">
         <div className="card-header fw-bold d-flex align-items-center">
           <FaUsers className="me-2" /> Gestion des groupes
-          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam")} title="Retour"><span aria-hidden="true">&larr;</span> Retour</button>
+          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam")} title="Retour"><span aria-hidden="true">&larr;</span> Back</button>
         </div>
         <div className="card-body">
           <form className="row g-2 mb-3" onSubmit={e => {
@@ -70,7 +70,7 @@ export default function GestionGroupes() {
                     <td>{g.nom}</td>
                     <td>{rolesDisponibles.find(r => r.id === g.roleId)?.nom || ""}</td>
                     <td>
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigate(`/iam/groupes/${g.id}`)}>Éditer</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigate(`/iam/groups/${g.id}`)}>Éditer</button>
                     </td>
                   </tr>
                 ))}

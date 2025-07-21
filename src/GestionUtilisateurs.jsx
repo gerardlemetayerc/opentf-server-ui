@@ -43,7 +43,7 @@ export default function GestionUtilisateurs() {
                     <td>{u.source === "oidc" ? "OIDC" : "Locale"}</td>
                     <td>{u.groupes.length > 0 ? u.groupes.join(", ") : <span className="text-muted">Aucun</span>}</td>
                     <td>{u.actif ? <span className="badge bg-success">Oui</span> : <span className="badge bg-secondary">Non</span>}</td>
-                    <td><button className="btn btn-sm btn-outline-secondary" onClick={() => navigate(`/iam/utilisateurs/${u.id}`)}>Éditer</button></td>
+                    <td><button className="btn btn-sm btn-outline-secondary" onClick={() => navigate(`/iam/users/${u.id}`)}>Éditer</button></td>
                   </tr>
                 ))}
               </tbody>

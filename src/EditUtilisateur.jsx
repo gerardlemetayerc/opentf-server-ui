@@ -32,7 +32,7 @@ export default function EditUtilisateur() {
   const handleSave = e => {
     e.preventDefault();
     // TODO: Envoyer la mise à jour au backend
-    navigate("/iam/utilisateurs");
+    navigate("/iam/users");
   };
 
   return (
@@ -40,14 +40,14 @@ export default function EditUtilisateur() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam');}}>Gestion IAM</a></li>
-          <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam/utilisateurs');}}>Utilisateurs</a></li>
+          <li className="breadcrumb-item"><a href="#" onClick={e => {e.preventDefault(); navigate('/iam/users');}}>Utilisateurs</a></li>
           <li className="breadcrumb-item active" aria-current="page">Édition</li>
         </ol>
       </nav>
       <div className="card mb-4">
         <div className="card-header fw-bold d-flex align-items-center">
           <FaUser className="me-2" /> Édition de l'utilisateur
-          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam/utilisateurs")} title="Retour"><span aria-hidden="true">&larr;</span> Retour</button>
+          <button className="btn btn-link ms-auto" onClick={() => navigate("/iam/users")} title="Retour"><span aria-hidden="true">&larr;</span> Retour</button>
         </div>
         <form className="card-body" onSubmit={handleSave}>
           <div className="row g-3">

@@ -20,7 +20,7 @@ export default function GestionIAM() {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card h-100 text-center panel-hover" style={{ cursor: 'pointer' }} onClick={() => navigate("/iam/utilisateurs") }>
+          <div className="card h-100 text-center panel-hover" style={{ cursor: 'pointer' }} onClick={() => navigate("/iam/users") }>
             <div className="card-body d-flex flex-column align-items-center justify-content-center">
               <FaUser size={40} className="mb-3 text-primary" />
               <h5 className="card-title">Utilisateurs</h5>
@@ -30,7 +30,7 @@ export default function GestionIAM() {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card h-100 text-center panel-hover" style={{ cursor: 'pointer' }} onClick={() => navigate("/iam/groupes") }>
+          <div className="card h-100 text-center panel-hover" style={{ cursor: 'pointer' }} onClick={() => navigate("/iam/groups") }>
             <div className="card-body d-flex flex-column align-items-center justify-content-center">
               <FaUsers size={40} className="mb-3 text-primary" />
               <h5 className="card-title">Groupes</h5>
