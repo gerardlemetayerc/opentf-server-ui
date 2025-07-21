@@ -1,3 +1,5 @@
+import EditUtilisateur from './EditUtilisateur';
+              <Route path="/iam/utilisateurs/:id" element={<EditUtilisateur />} />
 
 
 
@@ -9,6 +11,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import GestionOffres from './GestionOffres';
 import NouvelleInstance from './NouvelleInstance';
+import GestionIAM from './GestionIAM';
+import AuthConfig from './AuthConfig';
+import GestionGroupes from './GestionGroupes';
+import GestionRoles from './GestionRoles';
+import EditGroupe from './EditGroupe';
+import GestionUtilisateurs from './GestionUtilisateurs';
 
 
 
@@ -67,6 +75,12 @@ function App() {
               } />
               <Route path="/offres" element={<GestionOffres />} />
               <Route path="/nouvelle-instance" element={<NouvelleInstance />} />
+              <Route path="/iam" element={<GestionIAM />} />
+              <Route path="/iam/auth" element={<AuthConfig />} />
+              <Route path="/iam/groupes" element={<GestionGroupes />} />
+              <Route path="/iam/groupes/:id" element={<EditGroupe />} />
+              <Route path="/iam/roles" element={<GestionRoles />} />
+              <Route path="/iam/utilisateurs" element={<GestionUtilisateurs />} />
               {/* Ajoutez ici d'autres routes pour les autres pages */}
             </Routes>
           </div>
