@@ -22,6 +22,7 @@ import GestionGroupes from './GestionGroupes';
 import GestionRoles from './GestionRoles';
 import EditGroupe from './EditGroupe';
 import GestionUtilisateurs from './GestionUtilisateurs';
+import GestionDomaines from './GestionDomaines';
 
 
 
@@ -57,6 +58,7 @@ function App() {
               <Route path="/configuration/workers" element={<GestionWorkers />} />
               <Route path="/configuration/tasks" element={<GestionTachesPlanifiees />} />
               <Route path="/configuration/workers" element={<GestionWorkers />} />
+              <Route path="/metadata" element={<GestionDomaines />} />
               {/* Ajoutez ici d'autres routes pour les autres pages */}
             </Routes>
           </div>
