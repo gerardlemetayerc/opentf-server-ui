@@ -39,9 +39,9 @@ export default function Sidebar() {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/metadata" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
+              <NavLink to="/domaines-admin" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-database"></i>
-                <p>Gestion des données</p>
+                <p>Domaines & valeurs suggérées</p>
               </NavLink>
             </li>
             <li className="nav-item">
