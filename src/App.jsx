@@ -24,50 +24,63 @@ import EditGroupe from './EditGroupe';
 import GestionUtilisateurs from './GestionUtilisateurs';
 import GestionDomainesPage from './GestionDomainesPage';
 import EditOffrePage from './EditOffrePage';
-
+import DemandeInstancePage from './DemandeInstancePage';
+import { LoginPage, UserProvider } from "./Auth";
+import RequireAuth from "./RequireAuth";
 
 
 function App() {
   return (
-    <Router>
-      <div className="app-wrapper layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
-        <Navbar />
-        <Sidebar />
-        <main className="app-main">
-          <div className="container-fluid">
-            <Routes>
-              <Route path="/instance/:id" element={<GestionInstanceDetail />} />
-              <Route path="/instances" element={<GestionInstances />} />
-              <Route path="/" element={
-                <div>
-                  {/* Dashboard panels */}
-                  <div className="container-fluid mt-4">
-                    <DashboardPanels />
-                  </div>
-                </div>
-              } />
-              <Route path="/offres" element={<GestionOffres />} />
-              <Route path="/servicecatalog" element={<NouvelleInstance />} />
-              <Route path="/iam" element={<GestionIAM />} />
-              <Route path="/iam/auth" element={<AuthConfig />} />
-              <Route path="/iam/groups" element={<GestionGroupes />} />
-              <Route path="/iam/groups/:id" element={<EditGroupe />} />
-              <Route path="/iam/roles" element={<GestionRoles />} />
-              <Route path="/iam/users" element={<GestionUtilisateurs />} />
-              <Route path="/iam/users/:id" element={<EditUtilisateur />} />
-              <Route path="/configuration" element={<Configuration />} />
-              <Route path="/configuration/workers" element={<GestionWorkers />} />
-              <Route path="/configuration/tasks" element={<GestionTachesPlanifiees />} />
-              <Route path="/configuration/workers" element={<GestionWorkers />} />
-              <Route path="/domaines-admin" element={<GestionDomainesPage />} />
-              <Route path="/offres/:id/edit" element={<EditOffrePage />} />
-              {/* Ajoutez ici d'autres routes pour les autres pages */}
-            </Routes>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <UserProvider>
+      <Router>
+        <div className="app-wrapper layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+          <Navbar />
+          <Sidebar />
+          <main className="app-main">
+            <div className="container-fluid">
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                {/* Toutes les autres routes protégées */}
+                <Route path="*" element={
+                  <RequireAuth>
+                    <Routes>
+                      <Route path="/instance/:id" element={<GestionInstanceDetail />} />
+                      <Route path="/instances" element={<GestionInstances />} />
+                      <Route path="/" element={
+                        <div>
+                          {/* Dashboard panels */}
+                          <div className="container-fluid mt-4">
+                            <DashboardPanels />
+                          </div>
+                        </div>
+                      } />
+                      <Route path="/offres" element={<GestionOffres />} />
+                      <Route path="/servicecatalog" element={<NouvelleInstance />} />
+                      <Route path="/iam" element={<GestionIAM />} />
+                      <Route path="/iam/auth" element={<AuthConfig />} />
+                      <Route path="/iam/groups" element={<GestionGroupes />} />
+                      <Route path="/iam/groups/:id" element={<EditGroupe />} />
+                      <Route path="/iam/roles" element={<GestionRoles />} />
+                      <Route path="/iam/users" element={<GestionUtilisateurs />} />
+                      <Route path="/iam/users/:id" element={<EditUtilisateur />} />
+                      <Route path="/configuration" element={<Configuration />} />
+                      <Route path="/configuration/workers" element={<GestionWorkers />} />
+                      <Route path="/configuration/tasks" element={<GestionTachesPlanifiees />} />
+                      <Route path="/configuration/workers" element={<GestionWorkers />} />
+                      <Route path="/domaines-admin" element={<GestionDomainesPage />} />
+                      <Route path="/offres/:id/edit" element={<EditOffrePage />} />
+                      <Route path="/demande-instance/:offerId" element={<DemandeInstancePage />} />
+                      {/* Ajoutez ici d'autres routes pour les autres pages */}
+                    </Routes>
+                  </RequireAuth>
+                } />
+              </Routes>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
 

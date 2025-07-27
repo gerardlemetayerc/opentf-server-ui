@@ -1,8 +1,12 @@
 import React from "react";
 import { FaThLarge } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { useUser } from "./Auth";
 
 export default function Sidebar() {
+  const { user } = useUser?.() || {};
+  if (!user) return null;
+
   return (
     <aside className="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
       <div className="sidebar-brand">
