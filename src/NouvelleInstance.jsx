@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "./fetchWithAuth";
 import { FaServer, FaDatabase, FaGlobe, FaKey, FaShieldAlt, FaUsers, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -7,14 +8,20 @@ const ICONS = {
 };
 
 export default function NouvelleInstance() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/offers")
+    fetchWithAuth("/api/offers", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement des offres"))
       .then(data => setOffers(Array.isArray(data) ? data : []))
       .catch(e => setError(e.toString()))

@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./fetchWithAuth";
 import React, { useState, useEffect } from "react";
 import { FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +18,7 @@ export default function GestionGroupes() {
   // Charger les groupes depuis l'API
   useEffect(() => {
     setLoading(true);
-    fetch("/api/groups")
+    fetchWithAuth("/api/groups", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => {
         if (!res.ok) throw new Error("Erreur lors du chargement des groupes");
         return res.json();
@@ -66,7 +67,8 @@ export default function GestionGroupes() {
               setSuccess("");
               try {
                 const roleName = rolesDisponibles.find(r => r.id === newRoleId)?.nom;
-                const res = await fetch("/api/groups", {
+                const res = await fetchWithAuth("/api/groups", {
+                  headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ name: newGroupe, roles: [roleName] })
@@ -122,7 +124,7 @@ export default function GestionGroupes() {
                             setLoading(true);
                             setError("");
                             setSuccess("");
-                            fetch(`/api/groups/${g.id}`, {
+                            fetchWithAuth(`/api/groups/${g.id}`, {
                               method: "PUT",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({ name: nouveauNom, roles: nouveauRole.split(",").map(r => r.trim()).filter(Boolean) })
@@ -147,7 +149,7 @@ export default function GestionGroupes() {
                           setError("");
                           setSuccess("");
                           try {
-                            const res = await fetch(`/api/groups/${g.id}`, { method: "DELETE" });
+                            const res = await fetchWithAuth(`/api/groups/${g.id}`, { method: "DELETE" });
                             if (!res.ok) throw new Error("Erreur lors de la suppression du groupe");
                             await res.json();
                             setGroupes(gs => gs.filter(gr => gr.id !== g.id));

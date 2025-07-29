@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { fetchWithAuth } from "./fetchWithAuth";
 import { FaServer, FaDatabase, FaGlobe, FaKey, FaShieldAlt, FaUsers, FaUser } from "react-icons/fa";
 const iconOptions = [
   { name: 'Server', value: 'FaServer', icon: <FaServer size={20} /> },
@@ -20,7 +21,7 @@ function useCategories() {
   const [error, setError] = useState("");
   useEffect(() => {
     setLoading(true);
-    fetch("/api/offer_categories")
+    fetchWithAuth("/api/offer_categories")
       .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement des catégories"))
       .then(setCategories)
       .catch(e => setError(e.toString()))
@@ -63,7 +64,7 @@ export default function EditOffrePage() {
   const [errorDomains, setErrorDomains] = useState("");
   useEffect(() => {
     setLoadingDomains(true);
-    fetch("/api/domains")
+    fetchWithAuth("/api/domains")
       .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement des domaines"))
       .then(data => setDomains(Array.isArray(data) ? data : []))
       .catch(e => setErrorDomains(e.toString()))
@@ -138,20 +139,25 @@ export default function EditOffrePage() {
         customjs: propForm.customjs || ""
       };
       let res;
+      const token = localStorage.getItem("auth_token");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      };
       if (editingPropIdx === null) {
         // Création
-        res = await fetch(`/api/offers/${id}/properties`, {
+        res = await fetchWithAuth(`/api/offers/${id}/properties`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(payload)
         });
       } else {
         // Edition
         const propId = form.properties[editingPropIdx]?.id;
         if (!propId) throw new Error("ID de propriété manquant pour la modification");
-        res = await fetch(`/api/offers/${id}/properties/${propId}`, {
+        res = await fetchWithAuth(`/api/offers/${id}/properties/${propId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(payload)
         });
       }
@@ -160,7 +166,7 @@ export default function EditOffrePage() {
       setEditingPropIdx(null);
       setShowPropForm(false);
       // Recharger uniquement la liste des propriétés
-      const propRes = await fetch(`/api/offers/${id}/properties`);
+      const propRes = await fetchWithAuth(`/api/offers/${id}/properties`);
       if (propRes.ok) {
         const newProps = await propRes.json();
         setForm(f => ({ ...f, properties: Array.isArray(newProps) ? newProps : [] }));
@@ -182,7 +188,7 @@ export default function EditOffrePage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/offers/${id}`)
+    fetchWithAuth(`/api/offers/${id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement"))
       .then(setOffre)
       .catch(e => setError(e.toString()))
@@ -197,8 +203,18 @@ export default function EditOffrePage() {
     git_url: "",
     active: true,
     offer_category_id: "",
+    auto_validated: true,
+    validation_group_id: null,
     properties: []
   });
+  // Liste des groupes pour validation
+  const [groups, setGroups] = useState([]);
+  useEffect(() => {
+    fetchWithAuth("/api/groups")
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setGroups(Array.isArray(data) ? data : []))
+      .catch(() => setGroups([]));
+  }, []);
   useEffect(() => {
     if (offre) {
       setForm(f => ({
@@ -215,7 +231,9 @@ export default function EditOffrePage() {
             ? String(offre.category_id)
           : (offre.category && offre.category.id !== undefined && offre.category.id !== null)
             ? String(offre.category.id)
-          : ""
+          : "",
+        auto_validated: offre.auto_validated !== undefined ? !!offre.auto_validated : true,
+        validation_group_id: offre.validation_group_id !== undefined ? offre.validation_group_id : null
       }));
     }
   }, [offre]);
@@ -223,7 +241,7 @@ export default function EditOffrePage() {
   // Effet pour charger dynamiquement la liste des propriétés au montage et à chaque changement d'id
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/offers/${id}/properties`)
+    fetchWithAuth(`/api/offers/${id}/properties`)
       .then(res => res.ok ? res.json() : [])
       .then(props => setForm(f => ({ ...f, properties: Array.isArray(props) ? props : [] })))
       .catch(() => setForm(f => ({ ...f, properties: [] })));
@@ -258,11 +276,11 @@ export default function EditOffrePage() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`/api/offers/${id}/properties/${prop.id}`, { method: "DELETE" });
+      const res = await fetchWithAuth(`/api/offers/${id}/properties/${prop.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Erreur lors de la suppression de la propriété");
       setSuccess("Propriété supprimée");
       // Recharger la liste des propriétés
-      const propRes = await fetch(`/api/offers/${id}/properties`);
+      const propRes = await fetchWithAuth(`/api/offers/${id}/properties`);
       if (propRes.ok) {
         const newProps = await propRes.json();
         setForm(f => ({ ...f, properties: Array.isArray(newProps) ? newProps : [] }));
@@ -281,27 +299,36 @@ export default function EditOffrePage() {
     setError("");
     setSuccess("");
     try {
-      // Construction du payload attendu par l'API
-      const payload = {
-        icon: form.icon, // doit être une URL, à adapter selon la logique métier
-        name: form.name,
-        version: form.version,
-        git_url: form.git_url,
-        active: !!form.active,
-        category_id: form.offer_category_id ? Number(form.offer_category_id) : null
-      };
-      const res = await fetch(`/api/offers/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
-      setSuccess("Offre modifiée");
-      setTimeout(() => navigate("/offres"), 1000);
+        // Construction du payload attendu par l'API
+        const payload = {
+            icon: form.icon,
+            name: form.name,
+            version: form.version,
+            git_url: form.git_url,
+            active: !!form.active,
+            category_id: form.offer_category_id ? Number(form.offer_category_id) : null,
+            auto_validated: !!form.auto_validated,
+            validation_group_id: !form.auto_validated && form.validation_group_id !== null && form.validation_group_id !== "" ? parseInt(form.validation_group_id, 10) : null
+        };
+        console.log("API offer payload:", payload);
+        const token = localStorage.getItem("auth_token");
+        const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        };
+        const res = await fetchWithAuth(`/api/offers/${id}`, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+        setSuccess("Offre modifiée");
+        // Suppression de la redirection automatique
+        // setTimeout(() => navigate("/offres"), 1000);
     } catch (e) {
-      setError(e.message);
+        setError(e.message);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -354,6 +381,27 @@ export default function EditOffrePage() {
             <div className="col-md-6">
               <label className="form-label">URL du module Git</label>
               <input className="form-control" value={form.git_url} onChange={e => setForm(f => ({ ...f, git_url: e.target.value }))} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Auto-validation</label>
+              <div className="form-check">
+                <input className="form-check-input" type="checkbox" id="auto_validated" checked={!!form.auto_validated} onChange={e => setForm(f => ({ ...f, auto_validated: e.target.checked }))} />
+                <label className="form-check-label" htmlFor="auto_validated">L'offre est auto-validée</label>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Groupe de validation</label>
+              <select
+                className="form-select"
+                value={form.validation_group_id !== null ? String(form.validation_group_id) : ""}
+                onChange={e => setForm(f => ({ ...f, validation_group_id: e.target.value ? parseInt(e.target.value, 10) : null }))}
+                disabled={!!form.auto_validated}
+              >
+                <option value="">Aucun</option>
+                {groups.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
             </div>
             <div className="col-md-12">
               <label className="form-label">Propriétés dynamiques</label>

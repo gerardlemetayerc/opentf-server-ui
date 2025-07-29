@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./fetchWithAuth";
 
 
 import React, { useState, useEffect } from "react";
@@ -39,8 +40,8 @@ export default function GestionOffres() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/offer_categories").then(r => r.json()),
-      fetch("/api/offers").then(r => r.json())
+      fetchWithAuth("/api/offer_categories", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }).then(r => r.json()),
+      fetchWithAuth("/api/offers", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }).then(r => r.json())
     ])
       .then(([cats, offs]) => {
         setCategories(cats);
@@ -98,7 +99,8 @@ export default function GestionOffres() {
       };
       let res, data;
       if (editId) {
-        res = await fetch(`/api/offers/${editId}`, {
+        res = await fetchWithAuth(`/api/offers/${editId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -108,7 +110,7 @@ export default function GestionOffres() {
         setOffres(os => os.map(o => o.id === editId ? data : o));
         setSuccess("Offre modifiée");
       } else {
-        res = await fetch("/api/offers", {
+        res = await fetchWithAuth("/api/offers", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -133,7 +135,7 @@ export default function GestionOffres() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`/api/offers/${id}`, { method: "DELETE" });
+      const res = await fetchWithAuth(`/api/offers/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Erreur lors de la suppression");
       setOffres(os => os.filter(o => o.id !== id));
       setSuccess("Offre supprimée");

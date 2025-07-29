@@ -3,9 +3,22 @@ import { useUser } from "./Auth";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const { user, logout } = useUser?.() || {};
+  const { user, token, login, logout } = useUser?.() || {};
+  const hasToken = token || localStorage.getItem("auth_token");
   const navigate = useNavigate();
-  if (!user) return null;
+  React.useEffect(() => {
+    if (!user && hasToken) {
+      // Recharge l'utilisateur à partir du backend si le token est présent
+      fetch("/api/users/me", {
+        headers: { Authorization: `Bearer ${hasToken}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) login(data, hasToken);
+        });
+    }
+  }, [user, hasToken, login]);
+  if (!user && !hasToken) return null;
 
   const handleLogout = () => {
     logout();

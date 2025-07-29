@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./fetchWithAuth";
 
 import React, { useState, useEffect, useRef } from "react";
 import Notification from "./Notification";
@@ -24,9 +25,9 @@ export default function EditUtilisateur() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`/api/users/${id}`),
-      fetch('/api/groups'),
-      fetch('/api/iam/auth/oidc')
+      fetchWithAuth(`/api/users/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }),
+      fetchWithAuth('/api/groups', { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }),
+      fetchWithAuth('/api/iam/auth/oidc')
     ])
       .then(async ([userRes, groupsRes, oidcRes]) => {
         if (!userRes.ok) throw new Error("Erreur lors du chargement de l'utilisateur");
@@ -84,7 +85,7 @@ export default function EditUtilisateur() {
         auth_source: user.auth_source,
         groups: selectedGroupIds
       };
-      const res = await fetch(`/api/users/${id}`, {
+      const res = await fetchWithAuth(`/api/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

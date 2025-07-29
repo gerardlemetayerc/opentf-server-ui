@@ -4,8 +4,9 @@ import { NavLink } from "react-router-dom";
 import { useUser } from "./Auth";
 
 export default function Sidebar() {
-  const { user } = useUser?.() || {};
-  if (!user) return null;
+  const { user, token } = useUser?.() || {};
+  const hasToken = token || localStorage.getItem("auth_token");
+  if (!user && !hasToken) return null;
 
   return (
     <aside className="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">

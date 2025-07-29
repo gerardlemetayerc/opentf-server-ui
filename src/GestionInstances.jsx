@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "./fetchWithAuth";
 import { FaServer, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -11,15 +12,19 @@ const statusMap = {
   "En attente d'approbation": "primary"
 };
 
-const initialInstances = [
-  { id: 1, name: "Instance-Alpha", user: "alice", group: "Admins", status: "OK", offer: "VM Standard" },
-  { id: 2, name: "Instance-Beta", user: "bob", group: "Utilisateurs", status: "WaitingforProvisionning", offer: "DB MySQL" },
-  { id: 3, name: "Instance-Gamma", user: "charlie", group: "Admins", status: "Tainted", offer: "VM GPU" },
-  { id: 4, name: "Instance-Delta", user: "david", group: "Utilisateurs", status: "En attente d'approbation", offer: "DB PostgreSQL" }
-];
 
 export default function GestionInstances() {
-  const [instances] = useState(initialInstances);
+  const [instances, setInstances] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    setLoading(true);
+    fetchWithAuth("/api/instances", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
+      .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement des instances"))
+      .then(data => setInstances(Array.isArray(data) ? data : []))
+      .catch(e => setError(e.toString()))
+      .finally(() => setLoading(false));
+  }, []);
   const navigate = useNavigate();
 
   return (
@@ -35,34 +40,42 @@ export default function GestionInstances() {
       </div>
       <div className="card">
         <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-bordered align-middle">
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Demandeur</th>
-                  <th>Équipe</th>
-                  <th>Type d'offre</th>
-                  <th>Statut</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {instances.map(inst => (
-                  <tr key={inst.id}>
-                    <td>{inst.name}</td>
-                    <td>{inst.user}</td>
-                    <td>{inst.group}</td>
-                    <td>{inst.offer}</td>
-                    <td><span className={`badge bg-${statusMap[inst.status] || 'secondary'}`}>{inst.status}</span></td>
-                    <td>
-                      <button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/instance/${inst.id}`)}><FaEdit className="me-1" />Gérer</button>
-                    </td>
+          {error && <div className="alert alert-danger mb-3">{error}</div>}
+          {loading ? (
+            <div>Chargement...</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-bordered align-middle">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Demandeur</th>
+                    <th>Équipe</th>
+                    <th>Type d'offre</th>
+                    <th>Statut</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {instances.length === 0 && (
+                    <tr><td colSpan={6} className="text-center text-muted">Aucune instance trouvée.</td></tr>
+                  )}
+                  {instances.map(inst => (
+                    <tr key={inst.id}>
+                      <td>{inst.name}</td>
+                      <td>{inst.requester_displayname || inst.user || inst.requester?.email || ""}</td>
+                      <td>{inst.group_name || inst.group || inst.requester?.group || ""}</td>
+                      <td>{inst.offer_name || inst.offer || inst.offer?.name || ""}</td>
+                      <td><span className={`badge bg-${statusMap[inst.status] || 'secondary'}`}>{inst.status}</span></td>
+                      <td>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/instance/${inst.id}`)}><FaEdit className="me-1" />Gérer</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

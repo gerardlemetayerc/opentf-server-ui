@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./fetchWithAuth";
 import React, { useState, useEffect } from "react";
 import Notification from "./Notification";
 
@@ -16,7 +17,7 @@ export default function GestionDomaines() {
   // Charger les domaines
   useEffect(() => {
     setLoading(true);
-    fetch("/api/domains")
+    fetchWithAuth("/api/domains", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => res.json())
       .then(setDomaines)
       .catch(e => setError(e.message))
@@ -27,7 +28,7 @@ export default function GestionDomaines() {
   useEffect(() => {
     if (!selectedDomaine) return setSuggestedValues([]);
     setLoading(true);
-    fetch(`/api/domains/${selectedDomaine.id}/suggested_values`)
+    fetchWithAuth(`/api/domains/${selectedDomaine.id}/suggested_values`, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => res.json())
       .then(setSuggestedValues)
       .catch(e => setError(e.message))
@@ -41,7 +42,7 @@ export default function GestionDomaines() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch("/api/domains", {
+      const res = await fetchWithAuth("/api/domains", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newDomaine })
@@ -72,7 +73,7 @@ export default function GestionDomaines() {
         ...(newValue.parent_domain_id ? { parent_domain_id: parseInt(newValue.parent_domain_id, 10) } : {}),
         ...(newValue.parent_value ? { parent_value: newValue.parent_value } : {})
       };
-      const res = await fetch(`/api/domains/${selectedDomaine.id}/suggested_values`, {
+      const res = await fetchWithAuth(`/api/domains/${selectedDomaine.id}/suggested_values`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -96,7 +97,7 @@ export default function GestionDomaines() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`/api/domains/${selectedDomaine.id}/suggested_values/${valueId}`, {
+      const res = await fetchWithAuth(`/api/domains/${selectedDomaine.id}/suggested_values/${valueId}`, {
         method: "DELETE"
       });
       if (!res.ok) throw new Error("Erreur lors de la suppression de la valeur");
@@ -132,7 +133,7 @@ export default function GestionDomaines() {
         ...(editValue.parent_domain_id ? { parent_domain_id: parseInt(editValue.parent_domain_id, 10) } : {}),
         ...(editValue.parent_value ? { parent_value: editValue.parent_value } : {})
       };
-      const res = await fetch(`/api/domains/${selectedDomaine.id}/suggested_values/${editValueId}`, {
+      const res = await fetchWithAuth(`/api/domains/${selectedDomaine.id}/suggested_values/${editValueId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

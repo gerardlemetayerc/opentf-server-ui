@@ -22,11 +22,11 @@ export default function DemandeInstancePage() {
 
   useEffect(() => {
     setLoading(true);
-    fetchWithAuth(`/api/offers/${offerId}`)
+    fetchWithAuth(`/api/offers/${offerId}`, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => res.ok ? res.json() : Promise.reject("Erreur de chargement de l'offre"))
       .then(data => {
         setOffer(data);
-        fetchWithAuth(`/api/offers/${offerId}/properties`)
+        fetchWithAuth(`/api/offers/${offerId}/properties`, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
           .then(res => res.ok ? res.json() : [])
           .then(async props => {
             setOffer(o => ({ ...o, properties: Array.isArray(props) ? props : [] }));
@@ -36,7 +36,7 @@ export default function DemandeInstancePage() {
               initial[p.name] = p.default_value || "";
               if (p.metadata_source) {
                 // Prépare la requête pour récupérer les metadata via le bon endpoint
-                metadataPromises[p.name] = fetchWithAuth(`/api/domains/${p.metadata_source}/suggested_values`)
+                metadataPromises[p.name] = fetchWithAuth(`/api/domains/${p.metadata_source}/suggested_values`, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
                   .then(res => res.ok ? res.json() : [])
                   .catch(() => []);
               }
@@ -76,7 +76,7 @@ export default function DemandeInstancePage() {
           const parentDomainId = parentProp && parentProp.metadata_source ? parentProp.metadata_source : "";
           const childDomainId = childProp.metadata_source;
           const url = `/api/suggested_values?parent_value=${encodeURIComponent(value)}&parent_domain_id=${encodeURIComponent(parentDomainId)}&domain_id=${encodeURIComponent(childDomainId)}`;
-          fetchWithAuth(url)
+          fetchWithAuth(url, { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
             .then(res => res.ok ? res.json() : [])
             .then(newValues => {
               setMetadataValues(prev => ({ ...prev, [childProp.name]: Array.isArray(newValues) ? newValues : [] }));
@@ -98,11 +98,22 @@ export default function DemandeInstancePage() {
     setSuccess("");
     setLoading(true);
     try {
-      // Envoi de la demande d'instance
-      const res = await fetchWithAuth(`/api/offers/${offerId}/request`, {
+      // Construction du payload conforme à l'API
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
+      const payload = {
+        offer_id: Number(offerId),
+        validator_id: null,
+        properties: Array.isArray(offer.properties)
+          ? offer.properties.map(prop => ({
+              offer_property_id: prop.id,
+              value: form[prop.name]
+            }))
+          : []
+      };
+      const res = await fetchWithAuth(`/api/instances`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+        body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("Erreur lors de la demande d'instance");
       setSuccess("Demande envoyée avec succès");

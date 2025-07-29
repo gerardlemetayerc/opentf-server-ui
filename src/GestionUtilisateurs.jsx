@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./fetchWithAuth";
 import React, { useState, useEffect } from "react";
 import Notification from "./Notification";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +15,7 @@ export default function GestionUtilisateurs() {
   // Charger les utilisateurs
   useEffect(() => {
     setLoading(true);
-    fetch("/api/users")
+    fetchWithAuth("/api/users", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } })
       .then(res => {
         if (!res.ok) throw new Error("Erreur lors du chargement des utilisateurs");
         return res.json();
@@ -33,7 +34,8 @@ export default function GestionUtilisateurs() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/users", {
+      const res = await fetchWithAuth("/api/users", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser)
@@ -56,7 +58,7 @@ export default function GestionUtilisateurs() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+      const res = await fetchWithAuth(`/api/users/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Erreur lors de la suppression");
       await res.json();
       setUtilisateurs(u => u.filter(user => user.id !== id));
