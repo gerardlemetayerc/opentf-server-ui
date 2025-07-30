@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lightenna/react-mermaid-diagram": "^1.0.21",
     "@popperjs/core": "^2.11.8",
+    "@xyflow/react": "^12.8.2",
     "admin-lte": "^4.0.0-rc3",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",

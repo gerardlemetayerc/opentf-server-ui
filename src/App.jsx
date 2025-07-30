@@ -12,6 +12,7 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import DashboardPanels from './DashboardPanels';
 import './App.css';
+import '@xyflow/react/dist/style.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import GestionOffres from './GestionOffres';

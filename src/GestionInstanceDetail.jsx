@@ -9,10 +9,13 @@ function renderValue(val) {
   return String(val);
 }
 import { FaEdit } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "./fetchWithAuth";
+import { InstanceLifecycleFlow } from "./InstanceLifecycleFlow";
 
 export default function GestionInstanceDetail() {
+  const [lifecycleModalOpen, setLifecycleModalOpen] = useState(false);
   const params = useParams();
   const instanceid = params.instanceid || params.id;
   const navigate = useNavigate();
@@ -188,10 +191,9 @@ export default function GestionInstanceDetail() {
   if (error) return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
   if (!instance || !offer) return null;
 
-  // Mapping propriétés : [{label, name, value, type}]
+  // Mapping propriétés : [{label, name, value, type, id}]
   const mappedProperties = Array.isArray(offer.properties)
     ? offer.properties.map(prop => {
-        // On cherche la valeur dans l'instance
         let value = "";
         if (Array.isArray(instance.properties)) {
           const instProp = instance.properties.find(ip => ip.offer_property_id === prop.id);
@@ -201,56 +203,27 @@ export default function GestionInstanceDetail() {
           label: prop.label || prop.name,
           name: prop.name,
           value,
-          type: prop.type || "string"
+          type: prop.type || "string",
+          id: prop.id
         };
       })
     : [];
 
   return (
     <div className="container mt-4">
-      {/* Représentation visuelle du statut de l'instance */}
-      <div className="mb-3">
-        {/* Statuts groupés par niveau de progression (sans chevrons) */}
-        {[
-          [
-            { key: "Draft", label: "Draft" }
-          ],
-          [
-            { key: "ImpactAnalysis", label: "Analyse d'impact" }
-          ],
-          [
-            { key: "WaitingForValidation", label: "En attente de validation" },
-            { key: "WaitingForProvisionning", label: "En attente provisionning" },
-            { key: "Refused", label: "Refusée" }
-          ],
-          [
-            { key: "OK", label: "OK" },
-            { key: "Failed", label: "Échec" },
-            { key: "Tainted", label: "Tainted" }
-          ],
-          [
-            { key: "NeedApply", label: "NeedApply" }
-          ]
-        ].map((group, groupIdx, groupsArr) => (
-          <div key={groupIdx} className="d-flex align-items-center gap-2 mb-1">
-            {group.map((step, idx) => (
-              <span
-                key={step.key}
-                className={
-                  "badge px-3 py-2 d-flex align-items-center " +
-                  (instance.status === step.key
-                    ? "bg-primary text-light"
-                    : "bg-light text-dark border")
-                }
-                style={{ fontWeight: instance.status === step.key ? "bold" : "normal", fontSize: "1rem" }}
-              >
-                <span>{step.label}</span>
-              </span>
-            ))}
-            {groupIdx < groupsArr.length - 1 && <span style={{ fontSize: "1.2rem", color: "#888" }}>&darr;</span>}
-          </div>
-        ))}
-      </div>
+      <Modal
+        isOpen={lifecycleModalOpen}
+        onRequestClose={() => setLifecycleModalOpen(false)}
+        contentLabel="Cycle de vie de l'instance"
+        ariaHideApp={false}
+        style={{ content: { maxWidth: 700, margin: "auto", maxHeight: 750, height: 750, overflow: "auto", padding: 24 } }}
+      >
+        <h5 className="mb-3">Cycle de vie de l'instance</h5>
+        <InstanceLifecycleFlow currentStatus={instance.status} />
+        <div className="d-flex justify-content-end mt-3">
+          <button className="btn btn-secondary" type="button" onClick={() => setLifecycleModalOpen(false)}>Fermer</button>
+        </div>
+      </Modal>
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="/instances" onClick={e => {e.preventDefault(); window.location.href = '/instances';}}>Instances managées</a></li>
@@ -267,7 +240,26 @@ export default function GestionInstanceDetail() {
             <div>
               <span className="fw-bold">Statut : </span> 
               {renderValue(instance.status)}
+              <button
+                type="button"
+                className="btn btn-link btn-sm ms-2"
+                style={{ verticalAlign: 'middle', textDecoration: 'none', padding: 0 }}
+                onClick={() => setLifecycleModalOpen(true)}
+                title="Voir le cycle de vie"
+              >
+                <FaSearch style={{ marginRight: 4 }} /> Où j'en suis ?
+              </button>
             </div>
+            {/* Affichage du champ nom d'instance si configuré */}
+            {offer.name_property_id && mappedProperties.length > 0 && (
+              <div className="mt-2">
+                <span className="fw-bold">Nom de l'instance : </span>
+                {(() => {
+                  const nameProp = mappedProperties.find(p => p.id === offer.name_property_id);
+                  return nameProp ? renderValue(nameProp.value) : <span className="text-muted">Non renseigné</span>;
+                })()}
+              </div>
+            )}
           </div>
         </div>
         <div className="card-body">
@@ -297,18 +289,9 @@ export default function GestionInstanceDetail() {
             </tbody>
           </table>
           <div className="d-flex justify-content-end gap-2 mt-3">
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={handleEdit}
-              disabled={instance.status === "WaitingForProvisionning" || instance.status === "Refused" || instance.status === "OK" || instance.status === "Failed" || instance.status === "Tainted" || instance.status === "NeedApply"}
-            >
-              <FaEdit className="me-1" />Éditer
-            </button>
-            <button
-              className="btn btn-warning btn-sm"
-              type="button"
-              disabled={loading || instance.status !== "Draft"}
-              onClick={async () => {
+            <button className="btn btn-sm btn-outline-primary" onClick={handleEdit}><FaEdit className="me-1" />Éditer</button>
+            {instance.status !== "ImpactAnalysis" && (
+              <button className="btn btn-warning btn-sm" type="button" disabled={loading} onClick={async () => {
                 setLoading(true);
                 setError("");
                 setSuccess("");
@@ -329,8 +312,8 @@ export default function GestionInstanceDetail() {
                 } finally {
                   setLoading(false);
                 }
-              }}
-            >Soumettre</button>
+              }}>Soumettre</button>
+            )}
           </div>
           {/* Modal d'édition des propriétés */}
           <Modal
@@ -342,9 +325,6 @@ export default function GestionInstanceDetail() {
           >
             <h4>Éditer l'instance : {instance.name}</h4>
             <form onSubmit={handleEditSubmit} className="mt-3">
-              {instance.status === "WaitingForProvisionning" || instance.status === "Refused" || instance.status === "OK" || instance.status === "Failed" || instance.status === "Tainted" || instance.status === "NeedApply" ? (
-                <div className="alert alert-warning">Modification impossible dans ce statut.</div>
-              ) : null}
               {Array.isArray(offer.properties) && offer.properties.length > 0 ? (
                 offer.properties.map(prop => {
                   if (prop.type === "form" || prop.renderAs === "form") return null;
@@ -417,8 +397,6 @@ export default function GestionInstanceDetail() {
               {error && <div className="alert alert-danger mt-3">{error}</div>}
             </form>
           </Modal>
-
-          {/* ...le bouton Soumettre est maintenant dans la card-header... */}
         </div>
       </div>
     </div>

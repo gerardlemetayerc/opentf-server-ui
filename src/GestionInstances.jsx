@@ -50,7 +50,6 @@ export default function GestionInstances() {
                   <tr>
                     <th>Nom</th>
                     <th>Demandeur</th>
-                    <th>Équipe</th>
                     <th>Type d'offre</th>
                     <th>Statut</th>
                     <th></th>
@@ -62,9 +61,8 @@ export default function GestionInstances() {
                   )}
                   {instances.map(inst => (
                     <tr key={inst.id}>
-                      <td>{inst.name}</td>
+                      <td>{inst.instance_name}</td>
                       <td>{inst.requester_displayname || inst.user || inst.requester?.email || ""}</td>
-                      <td>{inst.group_name || inst.group || inst.requester?.group || ""}</td>
                       <td>{inst.offer_name || inst.offer || inst.offer?.name || ""}</td>
                       <td><span className={`badge bg-${statusMap[inst.status] || 'secondary'}`}>{inst.status}</span></td>
                       <td>

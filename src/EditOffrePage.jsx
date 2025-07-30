@@ -205,7 +205,8 @@ export default function EditOffrePage() {
     offer_category_id: "",
     auto_validated: true,
     validation_group_id: null,
-    properties: []
+    properties: [],
+    namePropertyId: null
   });
   // Liste des groupes pour validation
   const [groups, setGroups] = useState([]);
@@ -233,7 +234,8 @@ export default function EditOffrePage() {
             ? String(offre.category.id)
           : "",
         auto_validated: offre.auto_validated !== undefined ? !!offre.auto_validated : true,
-        validation_group_id: offre.validation_group_id !== undefined ? offre.validation_group_id : null
+        validation_group_id: offre.validation_group_id !== undefined ? offre.validation_group_id : null,
+        namePropertyId: offre.name_property_id !== undefined ? offre.name_property_id : null
       }));
     }
   }, [offre]);
@@ -308,7 +310,8 @@ export default function EditOffrePage() {
             active: !!form.active,
             category_id: form.offer_category_id ? Number(form.offer_category_id) : null,
             auto_validated: !!form.auto_validated,
-            validation_group_id: !form.auto_validated && form.validation_group_id !== null && form.validation_group_id !== "" ? parseInt(form.validation_group_id, 10) : null
+            validation_group_id: !form.auto_validated && form.validation_group_id !== null && form.validation_group_id !== "" ? parseInt(form.validation_group_id, 10) : null,
+            name_property_id: form.namePropertyId !== null ? Number(form.namePropertyId) : null
         };
         console.log("API offer payload:", payload);
         const token = localStorage.getItem("auth_token");
@@ -341,8 +344,23 @@ export default function EditOffrePage() {
           <Notification show={!!success} message={success} onClose={() => setSuccess("")} type="success" />
           <form onSubmit={handleSave} className="row g-3">
             <div className="col-md-6">
-              <label className="form-label">Nom</label>
+              <label className="form-label">Nom de l'offre</label>
               <input className="form-control" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Propriété utilisée comme nom d'instance</label>
+              <select
+                className="form-select"
+                value={form.namePropertyId !== null ? String(form.namePropertyId) : ""}
+                onChange={e => setForm(f => ({ ...f, namePropertyId: e.target.value ? Number(e.target.value) : null }))}
+                required
+                disabled={form.properties.length === 0}
+              >
+                <option value="">Sélectionner une propriété...</option>
+                {form.properties.map((p, idx) => (
+                  <option key={p.id || idx} value={p.id}>{p.label || p.name}</option>
+                ))}
+              </select>
             </div>
             <div className="col-md-3 position-relative">
               <label className="form-label">Icône</label>
