@@ -562,6 +562,27 @@ export default function EditOffrePage() {
               )}
             </div>
             <div className="col-12">
+              <button className="btn btn-info me-2" type="button" onClick={async () => {
+                  setLoading(true);
+                  setError("");
+                  setSuccess("");
+                  try {
+                    const res = await fetchWithAuth(`/api/modules/${offre.module_id}/update`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" }
+                    });
+                    const data = await res.json();
+                    if (data.updated) {
+                      setSuccess("Repository mis à jour.");
+                    } else {
+                      setError("La mise à jour du repository a échoué.");
+                    }
+                  } catch (e) {
+                    setError("Erreur lors de la mise à jour du repository.");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}>Update repo</button>
               <button className="btn btn-success me-2" type="submit" disabled={loading}>Enregistrer</button>
               <button className="btn btn-secondary" type="button" onClick={() => navigate("/offres")}>Annuler</button>
             </div>

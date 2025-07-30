@@ -50,6 +50,12 @@ export default function Sidebar() {
               </NavLink>
             </li>
             <li className="nav-item">
+              <NavLink to="/repository" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
+                <i className="nav-icon bi bi-git"></i>
+                <p>Repository</p>
+              </NavLink>
+            </li>
+            <li className="nav-item">
               <NavLink to="/iam" className={({ isActive }) => "nav-link" + (isActive ? " active" : "") }>
                 <i className="nav-icon bi bi-people"></i>
                 <p>Gestion IAM</p>

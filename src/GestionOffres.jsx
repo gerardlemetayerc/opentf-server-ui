@@ -46,7 +46,7 @@ export default function GestionOffres() {
       .then(([cats, offs]) => {
         setCategories(cats);
         setOffres(offs);
-        setNewCat(cats[0]?.id || "");
+        setFormCat(cats[0]?.id || "");
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -94,7 +94,7 @@ export default function GestionOffres() {
         category_id: parseInt(formCat, 10),
         icon: formIcon,
         active: formActive,
-        repository: formRepo,
+        git_url: formRepo,
         properties
       };
       let res, data;
@@ -240,7 +240,7 @@ export default function GestionOffres() {
               <td>{offre.active ? <span className="badge bg-success">Oui</span> : <span className="badge bg-secondary">Non</span>}</td>
               <td>
                 <button className="btn btn-outline-primary btn-sm me-2" onClick={() => navigate(`/offres/${offre.id}/edit`)}>Éditer</button>
-                <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(offre.id)}>Supprimer</button>
+                <button className="btn btn-outline-danger btn-sm me-2" onClick={() => handleDelete(offre.id)}>Supprimer</button>
               </td>
             </tr>
           ))}
