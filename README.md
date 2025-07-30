@@ -1,29 +1,19 @@
-
 # OpenTF Server UI
 
 ## Présentation
 
-Ce module est une interface d'administration cloud développée avec React, Vite et AdminLTE. Il permet de gérer un catalogue d'offres, les propriétés dynamiques associées, les catégories, les instances managées, les domaines et les valeurs suggérées, ainsi que la configuration et l'IAM (gestion des utilisateurs et des accès).
+OpenTF Server UI est une application web d'administration pour le cloud, permettant de gérer un catalogue d'offres de services, leurs propriétés dynamiques, les instances déployées, les catégories, les domaines et les valeurs suggérées. Elle facilite la gestion des utilisateurs, des accès (IAM), et la configuration du système.
 
-## Fonctionnalités principales
+## Principales fonctionnalités
 
-- **Authentification** : prise en charge de l'authentification locale et OpenID Connect (OIDC), avec gestion de session et protection des routes.
-- **Catalogue de services** : affichage, création, modification et suppression d'offres et de catégories.
-- **Gestion des propriétés d'offre** : édition dynamique des propriétés via une modal, avec prise en compte des dépendances et des métadonnées.
-- **Demande d'instance** : formulaire dynamique basé sur les propriétés d'une offre, avec chargement des valeurs suggérées et dépendances.
-- **Domaines & valeurs suggérées** : administration des domaines et des suggestions pour les propriétés.
-- **IAM** : gestion des utilisateurs, groupes et configuration des méthodes d'authentification.
+- **Gestion du catalogue d'offres** : création, modification, suppression d'offres et de catégories, avec propriétés dynamiques et dépendances.
+- **Déploiement et suivi d'instances** : visualisation, édition et soumission d'instances managées, avec affichage du cycle de vie et des statuts métier.
+- **Formulaires dynamiques** : génération automatique de formulaires selon les propriétés de l'offre, prise en compte des dépendances et des valeurs suggérées.
+- **Gestion des domaines et valeurs suggérées** : administration des domaines métiers et des listes de valeurs pour les propriétés.
+- **IAM (gestion des accès)** : gestion des utilisateurs, groupes et méthodes d'authentification (locale ou OpenID Connect).
 - **Configuration système** : accès à la configuration générale et aux tâches planifiées.
 
-## Fonctionnement
-
-L'application fonctionne en SPA (Single Page Application) et communique avec une API REST backend via des endpoints dédiés (`/api/offers`, `/api/offer_categories`, `/api/offers/:id/properties`, `/api/domains`, `/api/suggested_values`, `/api/users/login`, etc.).
-
-L'authentification est gérée globalement via un contexte React, avec stockage du token en localStorage et protection des routes sensibles. Les composants Navbar et Sidebar sont affichés uniquement si l'utilisateur est authentifié.
-
-La gestion des propriétés d'offre se fait dans une modal dédiée, avec rechargement dynamique de la liste après chaque modification. Les formulaires dynamiques pour la demande d'instance s'adaptent aux propriétés et chargent les valeurs suggérées ou dépendantes en temps réel.
-
-La configuration OIDC n'est jamais exposée côté client : seul l'état d'activation est détecté pour afficher ou non l'option d'authentification OpenID.
+L'application s'interface avec une API REST backend pour toutes les opérations métier et d'administration.
 
 ## Installation & démarrage
 
