@@ -28,6 +28,7 @@ import EditOffrePage from './EditOffrePage';
 import DemandeInstancePage from './DemandeInstancePage';
 import { LoginPage, UserProvider } from "./Auth";
 import RequireAuth from "./RequireAuth";
+import RepositoryPage from './RepositoryPage';
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                       <Route path="/domaines-admin" element={<GestionDomainesPage />} />
                       <Route path="/offres/:id/edit" element={<EditOffrePage />} />
                       <Route path="/demande-instance/:offerId" element={<DemandeInstancePage />} />
+                      <Route path="/repository" element={<RepositoryPage />} />
                       {/* Ajoutez ici d'autres routes pour les autres pages */}
                     </Routes>
                   </RequireAuth>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Notification from "./Notification";
 import { FaKey } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "./fetchWithAuth";
 
 export default function AuthConfig() {
   // Permet d'activer OIDC en plus du local
@@ -31,9 +32,8 @@ export default function AuthConfig() {
   // Charger les méthodes d'authentification et la config OIDC si besoin
   useEffect(() => {
     setLoading(true);
-    fetch("/api/iam/auth_methods", {
-      method: "GET",
-      credentials: "include"
+    fetchWithAuth("/api/iam/auth_methods", {
+      method: "GET"
     })
       .then(res => {
         if (!res.ok) throw new Error("Erreur lors de la récupération des méthodes d'authentification");
@@ -47,9 +47,8 @@ export default function AuthConfig() {
         setOidcEnabled(!!oidc?.enabled);
         if (oidc?.enabled) {
           // Charger la config OIDC seulement si activée
-          fetch("/api/iam/auth/oidc", {
-            method: "GET",
-            credentials: "include"
+          fetchWithAuth("/api/iam/auth/oidc", {
+            method: "GET"
           })
             .then(async res => {
               let data;
@@ -114,24 +113,21 @@ export default function AuthConfig() {
     setError("");
     try {
       // Met à jour les méthodes d'authentification
-      await fetch("/api/iam/auth_methods", {
+      await fetchWithAuth("/api/iam/auth_methods", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ method: "local", enabled: localEnabled })
       });
-      await fetch("/api/iam/auth_methods", {
+      await fetchWithAuth("/api/iam/auth_methods", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ method: "oidc", enabled: oidcEnabled })
       });
       // Si OIDC activé, enregistre la config OIDC
       if (oidcEnabled) {
-        await fetch("/api/iam/auth/oidc", {
+        await fetchWithAuth("/api/iam/auth/oidc", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify(oidcConfig)
         });
       }
@@ -187,10 +183,9 @@ export default function AuthConfig() {
                   setLoading(true);
                   setError("");
                   try {
-                    await fetch("/api/iam/auth_methods", {
+                    await fetchWithAuth("/api/iam/auth_methods", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      credentials: "include",
                       body: JSON.stringify({ method: "local", enabled: checked })
                     });
                   } catch (err) {
@@ -208,17 +203,15 @@ export default function AuthConfig() {
                   setLoading(true);
                   setError("");
                   try {
-                    await fetch("/api/iam/auth_methods", {
+                    await fetchWithAuth("/api/iam/auth_methods", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      credentials: "include",
                       body: JSON.stringify({ method: "oidc", enabled: checked })
                     });
                     if (checked) {
                       // Charger la config OIDC si activé
-                      const res = await fetch("/api/iam/auth/oidc", {
-                        method: "GET",
-                        credentials: "include"
+                      const res = await fetchWithAuth("/api/iam/auth/oidc", {
+                        method: "GET"
                       });
                       if (!res.ok) throw new Error("Erreur lors de la récupération de la configuration OIDC");
                       const data = await res.json();
