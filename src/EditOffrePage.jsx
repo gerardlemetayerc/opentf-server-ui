@@ -200,7 +200,7 @@ export default function EditOffrePage() {
     name: "",
     icon: "",
     version: "",
-    git_url: "",
+    module_id: null,
     active: true,
     offer_category_id: "",
     auto_validated: true,
@@ -208,6 +208,14 @@ export default function EditOffrePage() {
     properties: [],
     namePropertyId: null
   });
+  // Liste des modules (repositories)
+  const [modules, setModules] = useState([]);
+  useEffect(() => {
+    fetchWithAuth("/api/modules")
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setModules(Array.isArray(data) ? data : []))
+      .catch(() => setModules([]));
+  }, []);
   // Liste des groupes pour validation
   const [groups, setGroups] = useState([]);
   useEffect(() => {
@@ -223,7 +231,7 @@ export default function EditOffrePage() {
         name: offre.name || "",
         icon: offre.icon || "",
         version: offre.version || "",
-        git_url: offre.git_url || offre.terraform_repository || "",
+        module_id: offre.module_id !== undefined ? offre.module_id : null,
         active: !!offre.active,
         offer_category_id:
           (offre.offer_category_id !== undefined && offre.offer_category_id !== null)
@@ -306,7 +314,7 @@ export default function EditOffrePage() {
             icon: form.icon,
             name: form.name,
             version: form.version,
-            git_url: form.git_url,
+            module_id: form.module_id !== null ? Number(form.module_id) : null,
             active: !!form.active,
             category_id: form.offer_category_id ? Number(form.offer_category_id) : null,
             auto_validated: !!form.auto_validated,
@@ -397,8 +405,18 @@ export default function EditOffrePage() {
               <input className="form-control" value={form.version} onChange={e => setForm(f => ({ ...f, version: e.target.value }))} />
             </div>
             <div className="col-md-6">
-              <label className="form-label">URL du module Git</label>
-              <input className="form-control" value={form.git_url} onChange={e => setForm(f => ({ ...f, git_url: e.target.value }))} />
+              <label className="form-label">Module (repository)</label>
+              <select
+                className="form-select"
+                value={form.module_id !== null ? String(form.module_id) : ""}
+                onChange={e => setForm(f => ({ ...f, module_id: e.target.value ? Number(e.target.value) : null }))}
+                required
+              >
+                <option value="">Sélectionner un module...</option>
+                {modules.map(mod => (
+                  <option key={mod.id} value={mod.id}>{mod.name}</option>
+                ))}
+              </select>
             </div>
             <div className="col-md-3">
               <label className="form-label">Auto-validation</label>
@@ -452,137 +470,116 @@ export default function EditOffrePage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-              <button type="button" className="btn btn-outline-success btn-sm mb-2" onClick={handleNewProp}>Ajouter une propriété</button>
-              {/* Modal Bootstrap pour le formulaire propriété */}
-              {showPropForm && (
-                <>
-                  <div className="modal fade show" style={{ display: "block" }} tabIndex="-1" role="dialog">
-                    <div className="modal-dialog modal-lg" role="document">
-                      <div className="modal-content">
-                        <div className="modal-header">
-                          <h5 className="modal-title">{editingPropIdx !== null ? "Éditer une propriété" : "Ajouter une propriété"}</h5>
-                          <button type="button" className="btn-close" aria-label="Fermer" onClick={closePropModal}></button>
-                        </div>
-                        <form onSubmit={handleSaveProp}>
-                          <div className="modal-body">
-                            {error && <div className="alert alert-danger mb-2">{error}</div>}
-                            {success && <div className="alert alert-success mb-2">{success}</div>}
-                            <div className="row g-2">
-                              <div className="col-md-4">
-                                <label className="form-label">Nom (name)</label>
-                                <input className="form-control" value={propForm.name} onChange={e => setPropForm(f => ({ ...f, name: e.target.value }))} required />
-                              </div>
-                              <div className="col-md-3">
-                                <label className="form-label">Type</label>
-                                <select className="form-select" value={propForm.type} onChange={e => setPropForm(f => ({ ...f, type: e.target.value }))} required>
-                                  <option value="string">string</option>
-                                  <option value="number">number</option>
-                                  <option value="bool">bool</option>
-                                  <option value="list">list</option>
-                                </select>
-                              </div>
-                              <div className="col-md-5">
-                                <label className="form-label">Label</label>
-                                <input className="form-control" value={propForm.label} onChange={e => setPropForm(f => ({ ...f, label: e.target.value }))} required />
-                              </div>
-                              <div className="col-md-12">
-                                <label className="form-label">Description</label>
-                                <input className="form-control" value={propForm.description} onChange={e => setPropForm(f => ({ ...f, description: e.target.value }))} />
-                              </div>
-                              <div className="col-md-2">
-                                <label className="form-label">Obligatoire</label>
-                                <select className="form-select" value={propForm.required ? "true" : "false"} onChange={e => setPropForm(f => ({ ...f, required: e.target.value === "true" }))} required>
-                                  <option value="true">Oui</option>
-                                  <option value="false">Non</option>
-                                </select>
-                              </div>
-                              <div className="col-md-3">
-                                <label className="form-label">Valeur par défaut</label>
-                                <input className="form-control" value={propForm.default_value} onChange={e => setPropForm(f => ({ ...f, default_value: e.target.value }))} />
-                              </div>
-                              <div className="col-md-2">
-                                <label className="form-label">Min</label>
-                                <input className="form-control" value={propForm.min_value} onChange={e => setPropForm(f => ({ ...f, min_value: e.target.value }))} />
-                              </div>
-                              <div className="col-md-2">
-                                <label className="form-label">Max</label>
-                                <input className="form-control" value={propForm.max_value} onChange={e => setPropForm(f => ({ ...f, max_value: e.target.value }))} />
-                              </div>
-                              <div className="col-md-3">
-                                <label className="form-label">Source métadonnée</label>
-                                <select
-                                  className="form-select"
-                                  value={propForm.metadata_source}
-                                  onChange={e => setPropForm(f => ({ ...f, metadata_source: e.target.value }))}
-                                  disabled={loadingDomains}
-                                >
-                                  <option value="">{loadingDomains ? "Chargement..." : "Sélectionner..."}</option>
-                                  {domains.map(domain => (
-                                    <option key={domain.id || domain.name || domain} value={domain.id || domain.name || domain}>
-                                      {domain.label || domain.name || domain}
-                                    </option>
-                                  ))}
-                                </select>
-                                {errorDomains && <div className="text-danger small mt-1">{errorDomains}</div>}
-                              </div>
-                              {/* Liste déroulante pour 'Dépends de' calculée à l'ouverture de la modal */}
-                              {availableDependsOnProps.length > 0 && (
+                <button type="button" className="btn btn-outline-success btn-sm mb-2" onClick={handleNewProp}>Ajouter une propriété</button>
+                {/* Modal Bootstrap pour le formulaire propriété */}
+                {showPropForm && (
+                  <>
+                    <div className="modal fade show" style={{ display: "block" }} tabIndex="-1" role="dialog">
+                      <div className="modal-dialog modal-lg" role="document">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h5 className="modal-title">{editingPropIdx !== null ? "Éditer une propriété" : "Ajouter une propriété"}</h5>
+                            <button type="button" className="btn-close" aria-label="Fermer" onClick={closePropModal}></button>
+                          </div>
+                          <form onSubmit={handleSaveProp}>
+                            <div className="modal-body">
+                              {error && <div className="alert alert-danger mb-2">{error}</div>}
+                              {success && <div className="alert alert-success mb-2">{success}</div>}
+                              <div className="row g-2">
+                                <div className="col-md-4">
+                                  <label className="form-label">Nom (name)</label>
+                                  <input className="form-control" value={propForm.name} onChange={e => setPropForm(f => ({ ...f, name: e.target.value }))} required />
+                                </div>
                                 <div className="col-md-3">
-                                  <label className="form-label">Dépend de</label>
-                                  <select
-                                    className="form-select"
-                                    value={propForm.depends_on}
-                                    onChange={e => setPropForm(f => ({ ...f, depends_on: e.target.value }))}
-                                  >
-                                    <option value="">Aucune</option>
-                                    {availableDependsOnProps.map((p, idx) => (
-                                      <option key={p.id || p.name || idx} value={p.name}>{p.label || p.name}</option>
-                                    ))}
+                                  <label className="form-label">Type</label>
+                                  <select className="form-select" value={propForm.type} onChange={e => setPropForm(f => ({ ...f, type: e.target.value }))} required>
+                                    <option value="string">string</option>
+                                    <option value="number">number</option>
+                                    <option value="bool">bool</option>
+                                    <option value="list">list</option>
                                   </select>
                                 </div>
-                              )}
-                              <div className="col-md-12">
-                                <label className="form-label">Custom JS</label>
-                                <textarea className="form-control" rows={2} value={propForm.customjs} onChange={e => setPropForm(f => ({ ...f, customjs: e.target.value }))} />
+                                <div className="col-md-5">
+                                  <label className="form-label">Label</label>
+                                  <input className="form-control" value={propForm.label} onChange={e => setPropForm(f => ({ ...f, label: e.target.value }))} required />
+                                </div>
+                                <div className="col-md-12">
+                                  <label className="form-label">Description</label>
+                                  <input className="form-control" value={propForm.description} onChange={e => setPropForm(f => ({ ...f, description: e.target.value }))} />
+                                </div>
+                                <div className="col-md-2">
+                                  <label className="form-label">Obligatoire</label>
+                                  <select className="form-select" value={propForm.required ? "true" : "false"} onChange={e => setPropForm(f => ({ ...f, required: e.target.value === "true" }))} required>
+                                    <option value="true">Oui</option>
+                                    <option value="false">Non</option>
+                                  </select>
+                                </div>
+                                <div className="col-md-3">
+                                  <label className="form-label">Valeur par défaut</label>
+                                  <input className="form-control" value={propForm.default_value} onChange={e => setPropForm(f => ({ ...f, default_value: e.target.value }))} />
+                                </div>
+                                <div className="col-md-2">
+                                  <label className="form-label">Min</label>
+                                  <input className="form-control" value={propForm.min_value} onChange={e => setPropForm(f => ({ ...f, min_value: e.target.value }))} />
+                                </div>
+                                <div className="col-md-2">
+                                  <label className="form-label">Max</label>
+                                  <input className="form-control" value={propForm.max_value} onChange={e => setPropForm(f => ({ ...f, max_value: e.target.value }))} />
+                                </div>
+                                <div className="col-md-3">
+                                  <label className="form-label">Source métadonnée</label>
+                                  <select
+                                    className="form-select"
+                                    value={propForm.metadata_source}
+                                    onChange={e => setPropForm(f => ({ ...f, metadata_source: e.target.value }))}
+                                    disabled={loadingDomains}
+                                  >
+                                    <option value="">{loadingDomains ? "Chargement..." : "Sélectionner..."}</option>
+                                    {domains.map(domain => (
+                                      <option key={domain.id || domain.name || domain} value={domain.id || domain.name || domain}>
+                                        {domain.label || domain.name || domain}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {errorDomains && <div className="text-danger small mt-1">{errorDomains}</div>}
+                                </div>
+                                {/* Liste déroulante pour 'Dépends de' calculée à l'ouverture de la modal */}
+                                {availableDependsOnProps.length > 0 && (
+                                  <div className="col-md-3">
+                                    <label className="form-label">Dépend de</label>
+                                    <select
+                                      className="form-select"
+                                      value={propForm.depends_on}
+                                      onChange={e => setPropForm(f => ({ ...f, depends_on: e.target.value }))}
+                                    >
+                                      <option value="">Aucune</option>
+                                      {availableDependsOnProps.map((p, idx) => (
+                                        <option key={p.id || p.name || idx} value={p.name}>{p.label || p.name}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+                                <div className="col-md-12">
+                                  <label className="form-label">Custom JS</label>
+                                  <textarea className="form-control" rows={2} value={propForm.customjs} onChange={e => setPropForm(f => ({ ...f, customjs: e.target.value }))} />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="modal-footer">
-                            <button type="button" className="btn btn-success me-2" disabled={loading} onClick={handleSaveProp}>Enregistrer</button>
-                            <button type="button" className="btn btn-secondary" onClick={closePropModal}>Annuler</button>
-                          </div>
-                        </form>
+                            <div className="modal-footer">
+                              <button type="button" className="btn btn-success me-2" disabled={loading} onClick={handleSaveProp}>Enregistrer</button>
+                              <button type="button" className="btn btn-secondary" onClick={closePropModal}>Annuler</button>
+                            </div>
+                          </form>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Backdrop Bootstrap */}
-                  <div className="modal-backdrop fade show"></div>
-                </>
-              )}
+                    {/* Backdrop Bootstrap */}
+                    <div className="modal-backdrop fade show"></div>
+                  </>
+                )}
+            </div>
             </div>
             <div className="col-12">
-              <button className="btn btn-info me-2" type="button" onClick={async () => {
-                  setLoading(true);
-                  setError("");
-                  setSuccess("");
-                  try {
-                    const res = await fetchWithAuth(`/api/modules/${offre.module_id}/update`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" }
-                    });
-                    const data = await res.json();
-                    if (data.updated) {
-                      setSuccess("Repository mis à jour.");
-                    } else {
-                      setError("La mise à jour du repository a échoué.");
-                    }
-                  } catch (e) {
-                    setError("Erreur lors de la mise à jour du repository.");
-                  } finally {
-                    setLoading(false);
-                  }
-                }}>Update repo</button>
               <button className="btn btn-success me-2" type="submit" disabled={loading}>Enregistrer</button>
               <button className="btn btn-secondary" type="button" onClick={() => navigate("/offres")}>Annuler</button>
             </div>

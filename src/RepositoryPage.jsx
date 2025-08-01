@@ -81,6 +81,26 @@ export default function RepositoryPage() {
     }
   };
 
+  // Suppression d'un module
+  const handleDeleteModule = async (moduleId) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer ce module ?")) return;
+    setLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetchWithAuth(`/api/modules/${moduleId}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Erreur lors de la suppression du module");
+      setModules(mods => mods.filter(m => m.id !== moduleId));
+      setSuccess("Module supprimé.");
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4"><FaGitAlt className="me-2" />Gestion des repository</h2>
@@ -137,7 +157,7 @@ export default function RepositoryPage() {
             <th>Actif</th>
             <th>Créé le</th>
             <th>Mis à jour</th>
-            <th></th>
+            <th colSpan={2}></th>
           </tr>
         </thead>
         <tbody>
@@ -154,8 +174,11 @@ export default function RepositoryPage() {
               <td>{mod.created_at ? new Date(mod.created_at).toLocaleString() : ""}</td>
               <td>{mod.updated_at ? new Date(mod.updated_at).toLocaleString() : ""}</td>
               <td>
-                <button className="btn btn-outline-info btn-sm" onClick={() => handleUpdateRepo(mod.id)} title="Mettre à jour le repository">
+                <button className="btn btn-outline-info btn-sm me-2" onClick={() => handleUpdateRepo(mod.id)} title="Mettre à jour le repository">
                   <FaSyncAlt className="me-1" />Update repo
+                </button>
+                <button className="btn btn-outline-danger btn-sm" onClick={() => handleDeleteModule(mod.id)} title="Supprimer le module">
+                  Supprimer
                 </button>
               </td>
             </tr>

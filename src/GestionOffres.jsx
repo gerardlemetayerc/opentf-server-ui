@@ -34,6 +34,7 @@ export default function GestionOffres() {
   const [formIcon, setFormIcon] = useState(iconOptions[0].value);
   const [formActive, setFormActive] = useState(true);
   const [formRepo, setFormRepo] = useState("");
+  const [modules, setModules] = useState([]);
   const [formProps, setFormProps] = useState([]); // [{key, value}]
 
   // Charger catégories et offres
@@ -41,11 +42,13 @@ export default function GestionOffres() {
     setLoading(true);
     Promise.all([
       fetchWithAuth("/api/offer_categories", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }).then(r => r.json()),
-      fetchWithAuth("/api/offers", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }).then(r => r.json())
+      fetchWithAuth("/api/offers", { headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` } }).then(r => r.json()),
+      fetchWithAuth("/api/modules").then(r => r.json())
     ])
-      .then(([cats, offs]) => {
+      .then(([cats, offs, mods]) => {
         setCategories(cats);
         setOffres(offs);
+        setModules(Array.isArray(mods) ? mods : []);
         setFormCat(cats[0]?.id || "");
       })
       .catch(e => setError(e.message))
@@ -61,7 +64,7 @@ export default function GestionOffres() {
       setFormCat(offre.category_id || offre.category?.id || (categories[0]?.id || ""));
       setFormIcon(offre.icon || iconOptions[0].value);
       setFormActive(offre.active !== undefined ? offre.active : true);
-      setFormRepo(offre.repository || "");
+      setFormRepo(offre.module_id || "");
       setFormProps(Array.isArray(offre.properties) ? offre.properties : (offre.properties ? Object.entries(offre.properties).map(([key, value]) => ({ key, value })) : []));
     } else {
       setEditId(null);
@@ -94,7 +97,7 @@ export default function GestionOffres() {
         category_id: parseInt(formCat, 10),
         icon: formIcon,
         active: formActive,
-        git_url: formRepo,
+        module_id: formRepo ? Number(formRepo) : null,
         properties
       };
       let res, data;
@@ -196,8 +199,13 @@ export default function GestionOffres() {
                   <label className="form-check-label" htmlFor="activeCheck">Active</label>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Repository source Terraform</label>
-                  <input className="form-control" value={formRepo} onChange={e => setFormRepo(e.target.value)} placeholder="URL ou identifiant du repo" />
+                  <label className="form-label">Repository (module)</label>
+                  <select className="form-select" value={formRepo} onChange={e => setFormRepo(e.target.value)} required>
+                    <option value="">Sélectionner un module...</option>
+                    {modules.map(mod => (
+                      <option key={mod.id} value={mod.id}>{mod.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Propriétés personnalisées</label>
