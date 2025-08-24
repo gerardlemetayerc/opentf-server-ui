@@ -60,7 +60,7 @@ export function LoginPage() {
     let body = {};
     if (mode === "local") {
       url = "/api/users/login";
-      body = { email, password, auth_source: "local" };
+      body = { email, password, auth_source: "locale" };
     } else if (mode === "oidc") {
       url = "/api/users/login_oidc";
       body = { id_token: idToken };
