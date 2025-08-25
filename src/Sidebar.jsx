@@ -2,6 +2,7 @@ import React from "react";
 import { FaThLarge } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { useUser } from "./Auth";
+import logo from "/img/TF.png";
 
 export default function Sidebar() {
   const { user, token } = useUser?.() || {};
@@ -11,9 +12,16 @@ export default function Sidebar() {
   return (
     <aside className="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
       <div className="sidebar-brand">
-        <img src="/img/TF.png" alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
+          <img
+            src={logo}
+            alt="TF Foundry"
+            width={48}
+            height={48}
+            className="img-fluid d-block mx-auto mb-2"
+            style={{ objectFit: "contain" }}
+          />
         <a href="#" className="brand-link">
-          <span className="text-center brand-text fw-light">TF Foundery</span>
+          <span className="text-center brand-text fw-light">TF Foundry</span>
         </a>
       </div>
       <div className="sidebar-wrapper">
