@@ -11,8 +11,9 @@ export default function Sidebar() {
   return (
     <aside className="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
       <div className="sidebar-brand">
+        <img src="/img/TF.png" alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
         <a href="#" className="brand-link">
-          <span className="text-center brand-text fw-light">Cloud Management <br/>Platform</span>
+          <span className="text-center brand-text fw-light">TF Foundery</span>
         </a>
       </div>
       <div className="sidebar-wrapper">
