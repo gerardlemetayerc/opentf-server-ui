@@ -103,9 +103,11 @@ export default function GestionOffres() {
       let res, data;
       if (editId) {
         res = await fetchWithAuth(`/api/offers/${editId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+             "Content-Type": "application/json",
+             "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+            },
           body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error("Erreur lors de la modification de l'offre");

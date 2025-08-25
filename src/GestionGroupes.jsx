@@ -68,9 +68,11 @@ export default function GestionGroupes() {
               try {
                 const roleName = rolesDisponibles.find(r => r.id === newRoleId)?.nom;
                 const res = await fetchWithAuth("/api/groups", {
-                  headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                  headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+                  },
                   body: JSON.stringify({ name: newGroupe, roles: [roleName] })
                 });
                 if (!res.ok) throw new Error("Erreur lors de la création du groupe");

@@ -17,8 +17,6 @@ export default function Sidebar() {
             alt="TF Foundry"
             width={48}
             height={48}
-            className="img-fluid d-block mx-auto mb-2"
-            style={{ objectFit: "contain" }}
           />
         <a href="#" className="brand-link">
           <span className="text-center brand-text fw-light">TF Foundry</span>
